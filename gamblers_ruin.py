@@ -38,10 +38,10 @@ class Simulation:
                 break
             else:
                 if self.random_prob(a_success_rate) == 1:
-                    self.a_start += a_bet_weight
+                    self.a_start += b_bet_weight
                     self.b_start -= b_bet_weight
-                else:
-                    self.b_start += b_bet_weight
+                if self.random_prob(a_success_rate) == 0:
+                    self.b_start += a_bet_weight
                     self.a_start -= a_bet_weight
                 a_bank.append(self.a_start)
                 b_bank.append(self.b_start)
