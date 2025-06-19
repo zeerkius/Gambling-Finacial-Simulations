@@ -7,11 +7,18 @@
 import sys
 import threading
 import time
+import warnings
 
 class Simulation:
     def __init__(self,k , a):
+        self.total = a
         if a <= k:
             raise ValueError("new capital must be greater than inital betters capital")
+        if k <= 0:
+            warnings.warn("\nRun a normal simulation to repay your debt! .simulation() \n" +
+                           "run a debted simulation to pay off your debt .debted_simulation() \n" +
+                           "& win all of the other parties money\n")
+
         self.a_start = k
         self.b_start =  (a - k)
 
@@ -50,7 +57,47 @@ class Simulation:
                 b_bank.append(self.b_start)
                 steps += 1
                 n.append(steps)
+        def make_graph(x , y1 , y2):
+            import matplotlib.pyplot as plt
+            fig , axs = plt.subplots(1,2 , sharey = True , figsize = (10 , 7) , facecolor = "red")
+            axs[0].set_title("A's Betting Record")
+            axs[1].set_title("B's Betting Record")
+            axs[0].set_xlabel("Bets")
+            axs[1].set_xlabel("Bets")
+            axs[0].set_ylabel("Capital")
+            axs[1].set_ylabel("Capital")
+            axs[0].plot(x,y1 , color = "red")
+            axs[1].plot(x,y2 , color = "blue")
+            plt.show()
+        make_graph(n,a_bank,b_bank)
 
+        if self.a_start != 0:
+            return [n , a_bank]
+        else:
+            return [n , b_bank]
+
+    def debted_simulation(self , a_bet_weight = 1 , b_bet_weight = 1 , a_success_rate = 0.5 , betting_limit = 10000000): # returns winners bet record
+        # A's in debt and decides to bet to see if they wins all of the others parties money
+        steps = 0
+        n = [steps] # time
+        a_bank = [self.a_start]
+        b_bank = [self.b_start]
+        # everything is done from A's perspective howver 
+        while True:
+            if self.a_start == self.total:
+                print("A's Done The Impossible & B's Ruined!!!" , end = "\n")
+                break
+            else:
+                if self.random_prob(a_success_rate) == 1:
+                    self.a_start += b_bet_weight
+                    self.b_start -= b_bet_weight
+                if self.random_prob(a_success_rate) == 0:
+                    self.b_start += a_bet_weight
+                    self.a_start -= a_bet_weight
+                a_bank.append(self.a_start)
+                b_bank.append(self.b_start)
+                steps += 1
+                n.append(steps)
         def make_graph(x , y1 , y2):
             import matplotlib.pyplot as plt
             fig , axs = plt.subplots(1,2 , sharey = True , figsize = (10 , 7) , facecolor = "red")
@@ -80,20 +127,22 @@ def animation(stop_event):
         start += 1
         time.sleep(0.2)
 
-sim = Simulation(100 , 300) # meaning we have a bet where total capital is 300 dolars A -> starts with 100 , B -> starts with 200
+sim = Simulation(0 , 300) # meaning we have a bet where total capital is 300 dolars A -> starts with 100 , B -> starts with 200
 # we can change the probability of A winning as well as the stakes of how much either looses or wins
 
 
 # to start animation as well as simulation we define entry point 
 
+
 if __name__ == "__main__":
     stop_event = threading.Event() # - > so this is an event for each what would be thread to execture the animation
     animation_thread = threading.Thread(target=animation,args=(stop_event,)) # the comma signifies tuples
     animation_thread.start() # start thread
-    sim.simulation(a_success_rate = 0.3) # run clutsering
+    sim.debted_simulation(a_success_rate = 0.8) # run clutsering
     stop_event.set() # so this allows for the little process of animation to animate , then stop
     animation_thread.join()
     print("Simulation Over")
+
 
 
 
