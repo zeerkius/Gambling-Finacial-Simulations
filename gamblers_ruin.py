@@ -1,5 +1,8 @@
 # gamblers ruin situation
 # made after reading stochastic processes an introudction ~ authors p.w jones & p. smith
+# two betters decide to bet , and start with some capital
+# they both have some bets in N (set of natural numbers) where n_i is >= 0
+# if A bets 1 and B bets 1 if A wins they get 1 dollar and B looses a dollar they win B bet and visa versa 
 
 import sys
 import threading
@@ -10,7 +13,7 @@ class Simulation:
         if a <= k:
             raise ValueError("new capital must be greater than inital betters capital")
         self.a_start = k
-        self.b_start =  a - k
+        self.b_start =  (a - k)
 
     def random_prob(self,p):
         import random
@@ -23,17 +26,17 @@ class Simulation:
         else:
             return 0
 
-    def simulation(self , a_bet_weight = 1 , b_bet_weight = 1 , a_success_rate = 0.5): # returns winners bet record
+    def simulation(self , a_bet_weight = 1 , b_bet_weight = 1 , a_success_rate = 0.5 , betting_limit = 100000): # returns winners bet record
         steps = 0
         n = [steps] # time
         a_bank = [self.a_start]
         b_bank = [self.b_start]
         # everything is done from A's perspective howver 
         while True:
-            if self.a_start == 0:
+            if self.a_start == 0 or steps == betting_limit:
                 print(" A's ruined!!!" , end = "\n")
                 break
-            if self.b_start == 0: # b's ruined
+            if self.b_start == 0 or steps == betting_limit: # b's ruined
                 print(" B's ruined!!!" , end = "\n")
                 break
             else:
@@ -91,14 +94,6 @@ if __name__ == "__main__":
     stop_event.set() # so this allows for the little process of animation to animate , then stop
     animation_thread.join()
     print("Simulation Over")
-
-
-
-
-        
-
-
-
 
 
 
